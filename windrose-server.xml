@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>windrose-server</Name>
+  <Repository>indifferentbroccoli/windrose-server-docker</Repository>
+  <Registry>https://hub.docker.com/r/indifferentbroccoli/windrose-server-docker</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/indifferentbroccoli/windrose-server-docker/issues</Support>
+  <Project>https://playwindrose.com</Project>
+  <Overview>
+    Windrose Dedicated Server — host a persistent world so your crew can sail, build, and plunder anytime without needing the host online.&#xD;&#xD;
+    On first launch the server auto-generates ServerDescription.json and WorldDescription.json inside the server-files volume.&#xD;&#xD;
+    Set INVITE_CODE to a memorable string (min 6 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.&#xD;&#xD;
+    The game client and dedicated server versions must always match — update both together after any game patch.&#xD;&#xD;
+    Up to 4 players is recommended for best performance. See the official setup guide on Steam for advanced world configuration and save migration instructions.
+  </Overview>
+  <Category>GameServers:</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/NihilXD/windrose-docker/main/windrose-server.xml</TemplateURL>
+  <Icon>https://cdn.cloudflare.steamstatic.com/steam/apps/2872140/header.jpg</Icon>
+  <ExtraParams>--stop-timeout 30</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Description>
+    Windrose Dedicated Server — host a persistent world so your crew can sail, build, and plunder anytime without needing the host online.
+
+    On first launch the server auto-generates ServerDescription.json and WorldDescription.json inside the server-files volume.
+
+    Set INVITE_CODE to a memorable string (min 6 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.
+
+    The game client and dedicated server versions must always match — update both together after any game patch.
+
+    Up to 4 players is recommended for best performance. See the official setup guide on Steam for advanced world configuration and save migration instructions.
+  </Description>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  PATHS                                      -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <Config
+    Name="Server Files"
+    Target="/home/steam/server-files"
+    Default="/mnt/user/appdata/windrose/server-files"
+    Mode="rw"
+    Description="Stores server binaries, config files (ServerDescription.json, WorldDescription.json), and world save data. Back this folder up before game updates."
+    Type="Path"
+    Display="always"
+    Required="true"
+    Mask="false">/mnt/user/appdata/windrose/server-files</Config>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SERVER IDENTITY                            -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <Config
+    Name="Invite Code"
+    Target="INVITE_CODE"
+    Default="windrose"
+    Mode=""
+    Description="The code players paste under Play → Connect to Server to find your server. Minimum 6 characters, alphanumeric (0-9, a-z, A-Z), case-sensitive. Share this with your crew."
+    Type="Variable"
+    Display="always"
+    Required="true"
+    Mask="false">windrose</Config>
+
+  <Config
+    Name="Server Name"
+    Target="SERVER_NAME"
+    Default="Windrose Docker"
+    Mode=""
+    Description="Display name shown in the server browser so players know they are joining the right place."
+    Type="Variable"
+    Display="always"
+    Required="true"
+    Mask="false">Windrose Docker</Config>
+
+  <Config
+    Name="Server Password"
+    Target="SERVER_PASSWORD"
+    Default=""
+    Mode=""
+    Description="Password required to join the server. Leave blank for a public server. If set, IsPasswordProtected is automatically enabled."
+    Type="Variable"
+    Display="always"
+    Required="false"
+    Mask="true"></Config>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  GAMEPLAY                                   -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <Config
+    Name="Max Players"
+    Target="MAX_PLAYERS"
+    Default="4"
+    Mode=""
+    Description="Maximum simultaneous players. Up to 4 is strongly recommended for smooth performance. Exceeding this may impact stability, especially during late-game encounters. Hardware requirements scale with player count."
+    Type="Variable"
+    Display="always"
+    Required="false"
+    Mask="false">4</Config>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  NETWORKING                                 -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <Config
+    Name="P2P Proxy Address"
+    Target="P2P_PROXY_ADDRESS"
+    Default="0.0.0.0"
+    Mode=""
+    Description="IP address the server's listening socket binds to. Use 0.0.0.0 to listen on all interfaces (recommended for Unraid). Windrose uses relay/NAT punch-through — no manual port forwarding is required."
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false">0.0.0.0</Config>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  STARTUP BEHAVIOUR                          -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <Config
+    Name="Update on Start"
+    Target="UPDATE_ON_START"
+    Default="true"
+    Mode=""
+    Description="Download and validate server files via SteamCMD on every container start. Keeps the server in sync with game client updates automatically. Set to false to skip the update check (faster restarts, but you must update manually)."
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false">true</Config>
+
+  <Config
+    Name="Generate Settings"
+    Target="GENERATE_SETTINGS"
+    Default="true"
+    Mode=""
+    Description="Auto-generate ServerDescription.json and WorldDescription.json on first launch if they do not exist. Disable if you are supplying your own hand-crafted config files."
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false">true</Config>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  PERMISSIONS                                -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <Config
+    Name="PUID"
+    Target="PUID"
+    Default="99"
+    Mode=""
+    Description="User ID the server process runs as. Unraid default is 99 (nobody). Match this to the owner of your appdata folder if you experience permission issues."
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false">99</Config>
+
+  <Config
+    Name="PGID"
+    Target="PGID"
+    Default="100"
+    Mode=""
+    Description="Group ID the server process runs as. Unraid default is 100 (users). Match this to your appdata folder group if you experience permission issues."
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false">100</Config>
+
+</Container>
