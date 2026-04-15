@@ -1,6 +1,6 @@
 services:
   windrose:
-    image: indifferentbroccoli/windrose-server-docker
+    image: ghcr.io/nihilxd/windrose-server:latest
     container_name: windrose
     restart: unless-stopped
     stop_grace_period: 30s
