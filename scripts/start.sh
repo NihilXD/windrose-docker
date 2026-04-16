@@ -97,29 +97,16 @@ elif [ ! -f "$SERVER_DESC" ]; then
 fi
 
 # ─── Resolve P2P proxy address ────────────────────────────────────────────────
-# P2pProxyAddress is used as the gRPC server bind address AND registered with
-# the Windrose backend. It must be:
-#   1. An IP actually assigned to a local interface (so gRPC can bind to it)
-#   2. A real non-zero address (so the relay treats the server as reachable)
-# 0.0.0.0 satisfies #1 but not #2 — the backend marks the server offline.
-# The public WAN IP satisfies #2 but not #1 — gRPC bind fails (WSAEADDRNOTAVAIL).
-# The host's primary outbound LAN IP satisfies both when using host networking.
-# The P2PGate relay discovers the actual public IP via STUN independently.
-if [ -z "${P2P_PROXY_ADDRESS}" ] || [ "${P2P_PROXY_ADDRESS}" = "0.0.0.0" ]; then
-    detected=$(ip route get 1 2>/dev/null | awk 'NR==1 { for(i=1;i<=NF;i++) if($i=="src") print $(i+1) }')
-    # Fallback: hostname -I lists all interface IPs, take the first non-loopback one
-    if [ -z "$detected" ] || [ "$detected" = "0.0.0.0" ]; then
-        detected=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -v '^127\.' | grep -v '^::' | head -1)
-    fi
-    if [ -n "$detected" ] && [ "$detected" != "0.0.0.0" ]; then
-        P2P_PROXY_ADDRESS="$detected"
-        LogSuccess "Auto-detected local IP for P2P proxy: ${P2P_PROXY_ADDRESS}"
-    else
-        P2P_PROXY_ADDRESS="0.0.0.0"
-        LogWarn "Could not detect local IP — falling back to 0.0.0.0 (relay may show server offline)"
-    fi
-else
+# P2pProxyAddress controls what the server binds its internal gRPC listener to.
+# 0.0.0.0 = bind to all interfaces; the P2PGate relay discovers the real public
+# IP via STUN independently, so 0.0.0.0 is the correct default for Docker.
+# A specific LAN IP (e.g. 192.168.x.x) prevents the P2P subsystem from
+# initialising entirely — do not use one unless you know what you are doing.
+if [ -n "${P2P_PROXY_ADDRESS}" ] && [ "${P2P_PROXY_ADDRESS}" != "0.0.0.0" ]; then
     LogInfo "Using P2P_PROXY_ADDRESS: ${P2P_PROXY_ADDRESS}"
+else
+    P2P_PROXY_ADDRESS="0.0.0.0"
+    LogInfo "P2P_PROXY_ADDRESS defaulting to 0.0.0.0 (P2PGate relay handles public IP via STUN)"
 fi
 
 # ─── Patch ServerDescription.json with env vars ───────────────────────────────
