@@ -97,17 +97,14 @@ elif [ ! -f "$SERVER_DESC" ]; then
 fi
 
 # ─── Resolve P2P proxy address ────────────────────────────────────────────────
-# Treat blank or 0.0.0.0 as "auto-detect" — Unraid injects 0.0.0.0 when the
-# field is left empty, so we normalise both cases here.
+# P2pProxyAddress is used as the bind address for the server's internal gRPC
+# listener, not just for advertisement. Under Docker NAT the public IP is never
+# assigned to a local interface, so binding to it fails with WSAEADDRNOTAVAIL
+# and immediately crashes the server. Always use 0.0.0.0 (bind all interfaces)
+# unless the user explicitly provides a specific local IP to bind on.
 if [ -z "${P2P_PROXY_ADDRESS}" ] || [ "${P2P_PROXY_ADDRESS}" = "0.0.0.0" ]; then
-    LogInfo "P2P_PROXY_ADDRESS not set — auto-detecting public IP..."
-    P2P_PROXY_ADDRESS=$(curl -sf --max-time 10 https://api.ipify.org)
-    if [ -z "${P2P_PROXY_ADDRESS}" ]; then
-        LogWarn "Could not detect public IP — P2P connections may fail"
-        P2P_PROXY_ADDRESS="0.0.0.0"
-    else
-        LogSuccess "Public IP detected: ${P2P_PROXY_ADDRESS}"
-    fi
+    P2P_PROXY_ADDRESS="0.0.0.0"
+    LogInfo "P2P_PROXY_ADDRESS not set — using 0.0.0.0 (bind all interfaces)"
 else
     LogInfo "Using P2P_PROXY_ADDRESS: ${P2P_PROXY_ADDRESS}"
 fi
