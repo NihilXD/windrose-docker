@@ -71,11 +71,13 @@ elif [ ! -f "$SERVER_DESC" ]; then
 fi
 
 # ─── Resolve P2P proxy address ────────────────────────────────────────────────
-if [ -z "${P2P_PROXY_ADDRESS}" ]; then
+# Treat blank or 0.0.0.0 as "auto-detect" — Unraid injects 0.0.0.0 when the
+# field is left empty, so we normalise both cases here.
+if [ -z "${P2P_PROXY_ADDRESS}" ] || [ "${P2P_PROXY_ADDRESS}" = "0.0.0.0" ]; then
     LogInfo "P2P_PROXY_ADDRESS not set — auto-detecting public IP..."
     P2P_PROXY_ADDRESS=$(curl -sf --max-time 10 https://api.ipify.org)
     if [ -z "${P2P_PROXY_ADDRESS}" ]; then
-        LogWarn "Could not detect public IP — falling back to 0.0.0.0"
+        LogWarn "Could not detect public IP — P2P connections may fail"
         P2P_PROXY_ADDRESS="0.0.0.0"
     else
         LogSuccess "Public IP detected: ${P2P_PROXY_ADDRESS}"
