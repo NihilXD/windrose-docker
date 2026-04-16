@@ -31,6 +31,21 @@ if [ ! -f "${WINEPREFIX}/system.reg" ]; then
     LogSuccess "Wine prefix initialised"
 fi
 
+# ─── Clean up incomplete world directories ────────────────────────────────────
+# An aborted first-boot run can leave a partial RocksDB world directory that
+# causes the server to crash with "data inconsistency". A complete directory
+# always contains a CURRENT file; delete any that are missing it.
+WORLDS_DIR="${SERVER_FILES}/R5/Saved/SaveProfiles/Default/RocksDB/0.10.0/Worlds"
+if [ -d "$WORLDS_DIR" ]; then
+    for world_dir in "$WORLDS_DIR"/*/; do
+        [ -d "$world_dir" ] || continue
+        if [ ! -f "${world_dir}CURRENT" ]; then
+            LogWarn "Removing incomplete world directory: $(basename "$world_dir")"
+            rm -rf "$world_dir"
+        fi
+    done
+fi
+
 # ─── First-boot config generation ─────────────────────────────────────────────
 if [ "${GENERATE_SETTINGS:-true}" = "false" ]; then
     LogInfo "GENERATE_SETTINGS=false — skipping config generation"
