@@ -107,6 +107,10 @@ fi
 # The P2PGate relay discovers the actual public IP via STUN independently.
 if [ -z "${P2P_PROXY_ADDRESS}" ] || [ "${P2P_PROXY_ADDRESS}" = "0.0.0.0" ]; then
     detected=$(ip route get 1 2>/dev/null | awk 'NR==1 { for(i=1;i<=NF;i++) if($i=="src") print $(i+1) }')
+    # Fallback: hostname -I lists all interface IPs, take the first non-loopback one
+    if [ -z "$detected" ] || [ "$detected" = "0.0.0.0" ]; then
+        detected=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -v '^127\.' | grep -v '^::' | head -1)
+    fi
     if [ -n "$detected" ] && [ "$detected" != "0.0.0.0" ]; then
         P2P_PROXY_ADDRESS="$detected"
         LogSuccess "Auto-detected local IP for P2P proxy: ${P2P_PROXY_ADDRESS}"

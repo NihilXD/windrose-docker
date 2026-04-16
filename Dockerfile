@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # ─── Base dependencies ─────────────────────────────────────────────────────────
 RUN dpkg --add-architecture i386 && \
     apt-get update && apt-get install -y --no-install-recommends \
-        curl ca-certificates unzip procps \
+        curl ca-certificates unzip procps iproute2 \
         wine wine32:i386 wine64 \
         winbind \
         xvfb xauth \
