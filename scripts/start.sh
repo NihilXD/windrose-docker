@@ -4,13 +4,8 @@ source "/home/steam/server/functions.sh"
 
 SERVER_FILES="/home/steam/server-files"
 SERVER_DESC="${SERVER_FILES}/R5/ServerDescription.json"
-# Use the root wrapper exe (mirrors StartServerForeground.bat behaviour)
-# which may initialise Steam differently from calling the shipping exe directly
-if [ -f "${SERVER_FILES}/WindroseServer.exe" ]; then
-    SERVER_EXEC="${SERVER_FILES}/WindroseServer.exe"
-else
-    SERVER_EXEC="${SERVER_FILES}/R5/Binaries/Win64/WindroseServer-Win64-Shipping.exe"
-fi
+# Always use the shipping exe directly — WindroseServer.exe wrapper hangs under Wine
+SERVER_EXEC="${SERVER_FILES}/R5/Binaries/Win64/WindroseServer-Win64-Shipping.exe"
 
 cd "$SERVER_FILES" || exit 1
 
