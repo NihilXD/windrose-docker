@@ -97,16 +97,26 @@ elif [ ! -f "$SERVER_DESC" ]; then
 fi
 
 # ─── Resolve P2P proxy address ────────────────────────────────────────────────
-# P2pProxyAddress controls what the server binds its internal gRPC listener to.
-# 0.0.0.0 = bind to all interfaces; the P2PGate relay discovers the real public
-# IP via STUN independently, so 0.0.0.0 is the correct default for Docker.
-# A specific LAN IP (e.g. 192.168.x.x) prevents the P2P subsystem from
-# initialising entirely — do not use one unless you know what you are doing.
+# P2pProxyAddress is registered with the Windrose backend so the P2PGate relay
+# knows how to route player connections back to this server.  It must be the
+# host's LAN IP, not 0.0.0.0 — the backend stores whatever value is here and
+# hands it to P2PGate verbatim, so 0.0.0.0 is useless as a routing target.
+#
+# This container REQUIRES host networking (--network host / Network: host in
+# Unraid).  In host-network mode the server process can bind directly to the
+# LAN interface, which is what allows LAN IP detection to work correctly.
+# Bridge networking will cause the P2P subsystem to fail to initialise.
 if [ -n "${P2P_PROXY_ADDRESS}" ] && [ "${P2P_PROXY_ADDRESS}" != "0.0.0.0" ]; then
-    LogInfo "Using P2P_PROXY_ADDRESS: ${P2P_PROXY_ADDRESS}"
+    LogInfo "Using P2P_PROXY_ADDRESS override: ${P2P_PROXY_ADDRESS}"
 else
-    P2P_PROXY_ADDRESS="0.0.0.0"
-    LogInfo "P2P_PROXY_ADDRESS defaulting to 0.0.0.0 (P2PGate relay handles public IP via STUN)"
+    P2P_PROXY_ADDRESS=$(ip route get 1.1.1.1 2>/dev/null \
+        | awk '{for(i=1;i<=NF;i++) if ($i=="src") {print $(i+1); exit}}')
+    if [ -n "${P2P_PROXY_ADDRESS}" ]; then
+        LogInfo "Auto-detected LAN IP for P2P proxy: ${P2P_PROXY_ADDRESS}"
+    else
+        P2P_PROXY_ADDRESS="0.0.0.0"
+        LogWarn "Could not auto-detect LAN IP — falling back to 0.0.0.0 (P2P connections will likely fail)"
+    fi
 fi
 
 # ─── Patch ServerDescription.json with env vars ───────────────────────────────
