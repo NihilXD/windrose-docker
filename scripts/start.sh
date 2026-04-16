@@ -4,7 +4,13 @@ source "/home/steam/server/functions.sh"
 
 SERVER_FILES="/home/steam/server-files"
 SERVER_DESC="${SERVER_FILES}/R5/ServerDescription.json"
-SERVER_EXEC="${SERVER_FILES}/R5/Binaries/Win64/WindroseServer-Win64-Shipping.exe"
+# Use the root wrapper exe (mirrors StartServerForeground.bat behaviour)
+# which may initialise Steam differently from calling the shipping exe directly
+if [ -f "${SERVER_FILES}/WindroseServer.exe" ]; then
+    SERVER_EXEC="${SERVER_FILES}/WindroseServer.exe"
+else
+    SERVER_EXEC="${SERVER_FILES}/R5/Binaries/Win64/WindroseServer-Win64-Shipping.exe"
+fi
 
 cd "$SERVER_FILES" || exit 1
 
@@ -37,7 +43,7 @@ elif [ ! -f "$SERVER_DESC" ]; then
     LogAction "First boot detected — generating ServerDescription.json"
     LogInfo "Running server briefly to create default config files..."
 
-    xvfb-run -a wine "$SERVER_EXEC" &
+    xvfb-run -a wine "$SERVER_EXEC" -log &
     firstrun_pid=$!
 
     WORLD_DESC="${SERVER_FILES}/R5/WorldDescription.json"
@@ -116,5 +122,5 @@ if [ -f "$SERVER_DESC" ]; then
 fi
 
 # ─── Launch server ────────────────────────────────────────────────────────────
-LogAction "Launching WindroseServer-Win64-Shipping.exe"
-exec xvfb-run -a wine "$SERVER_EXEC"
+LogAction "Launching $(basename "$SERVER_EXEC")"
+exec xvfb-run -a wine "$SERVER_EXEC" -log
