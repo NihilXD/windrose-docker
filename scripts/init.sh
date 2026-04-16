@@ -43,7 +43,7 @@ su - steam -c "
     SERVER_NAME='${SERVER_NAME}' \
     SERVER_PASSWORD='${SERVER_PASSWORD}' \
     MAX_PLAYERS='${MAX_PLAYERS:-4}' \
-    P2P_PROXY_ADDRESS='${P2P_PROXY_ADDRESS:-0.0.0.0}' \
+    P2P_PROXY_ADDRESS='${P2P_PROXY_ADDRESS}' \
     GENERATE_SETTINGS='${GENERATE_SETTINGS:-true}' \
     /home/steam/server/start.sh
 " &
