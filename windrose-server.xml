@@ -6,7 +6,7 @@
   <Network>bridge</Network>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/indifferentbroccoli/windrose-server-docker/issues</Support>
+  <Support>https://github.com/NihilXD/windrose-docker/issues</Support>
   <Project>https://playwindrose.com</Project>
   <Overview>
     Windrose Dedicated Server — host a persistent world so your crew can sail, build, and plunder anytime without needing the host online.&#xD;&#xD;
@@ -111,13 +111,13 @@
   <Config
     Name="P2P Proxy Address"
     Target="P2P_PROXY_ADDRESS"
-    Default="0.0.0.0"
+    Default=""
     Mode=""
-    Description="IP address the server's listening socket binds to. Use 0.0.0.0 to listen on all interfaces (recommended for Unraid). Windrose uses relay/NAT punch-through — no manual port forwarding is required."
+    Description="The IP address advertised to players for connection. Leave blank to auto-detect your public IP on startup (recommended). Override with a local IP for LAN-only servers, or a specific public IP if auto-detection picks the wrong one."
     Type="Variable"
     Display="advanced"
     Required="false"
-    Mask="false">0.0.0.0</Config>
+    Mask="false"></Config>
 
   <!-- ═══════════════════════════════════════════ -->
   <!--  STARTUP BEHAVIOUR                          -->

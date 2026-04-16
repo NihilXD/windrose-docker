@@ -62,13 +62,27 @@ elif [ ! -f "$SERVER_DESC" ]; then
     sleep 2
 fi
 
+# ─── Resolve P2P proxy address ────────────────────────────────────────────────
+if [ -z "${P2P_PROXY_ADDRESS}" ]; then
+    LogInfo "P2P_PROXY_ADDRESS not set — auto-detecting public IP..."
+    P2P_PROXY_ADDRESS=$(curl -sf --max-time 10 https://api.ipify.org)
+    if [ -z "${P2P_PROXY_ADDRESS}" ]; then
+        LogWarn "Could not detect public IP — falling back to 0.0.0.0"
+        P2P_PROXY_ADDRESS="0.0.0.0"
+    else
+        LogSuccess "Public IP detected: ${P2P_PROXY_ADDRESS}"
+    fi
+else
+    LogInfo "Using P2P_PROXY_ADDRESS: ${P2P_PROXY_ADDRESS}"
+fi
+
 # ─── Patch ServerDescription.json with env vars ───────────────────────────────
 if [ -f "$SERVER_DESC" ]; then
     LogInfo "Patching ServerDescription.json with environment variables..."
     tmp=$(mktemp)
 
     jq \
-        --arg      proxy       "${P2P_PROXY_ADDRESS:-0.0.0.0}" \
+        --arg      proxy       "${P2P_PROXY_ADDRESS}" \
         --arg      invite      "${INVITE_CODE:-}" \
         --arg      name        "${SERVER_NAME:-}" \
         --arg      password    "${SERVER_PASSWORD:-}" \
