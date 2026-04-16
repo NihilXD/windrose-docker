@@ -115,7 +115,7 @@ if [ -f "$SERVER_DESC" ]; then
             .ServerDescription_Persistent.IsPasswordProtected = false |
             .ServerDescription_Persistent.Password = ""
         end |
-        .ServerDescription_Persistent.MaxPlayers = $maxplayers
+        .ServerDescription_Persistent.MaxPlayerCount = $maxplayers
         ' < "$SERVER_DESC" > "$tmp" && mv "$tmp" "$SERVER_DESC"
 
     LogSuccess "ServerDescription.json patched"
