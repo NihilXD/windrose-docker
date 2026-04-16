@@ -40,8 +40,11 @@ elif [ ! -f "$SERVER_DESC" ]; then
     xvfb-run -a wine "$SERVER_EXEC" &
     firstrun_pid=$!
 
+    WORLD_DESC="${SERVER_FILES}/R5/WorldDescription.json"
+
     count=0
-    while [ "$count" -lt 90 ] && [ ! -f "$SERVER_DESC" ]; do
+    while [ "$count" -lt 120 ]; do
+        [ -f "$SERVER_DESC" ] && [ -f "$WORLD_DESC" ] && break
         sleep 1
         count=$((count + 1))
     done
@@ -53,6 +56,10 @@ elif [ ! -f "$SERVER_DESC" ]; then
         wait "$firstrun_pid" 2>/dev/null
         wineserver -k 2>/dev/null
         exit 1
+    fi
+
+    if [ ! -f "$WORLD_DESC" ]; then
+        LogWarn "WorldDescription.json was not generated after ${count}s — continuing anyway"
     fi
 
     LogSuccess "Config files generated — stopping first-run instance"

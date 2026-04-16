@@ -7,6 +7,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates unzip procps \
         wine wine32:i386 wine64 \
+        winbind \
         xvfb xauth \
         jq \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -39,7 +40,7 @@ ENV HOME=/home/steam \
     SERVER_NAME="Windrose Server" \
     SERVER_PASSWORD="" \
     MAX_PLAYERS=4 \
-    P2P_PROXY_ADDRESS=0.0.0.0 \
+    P2P_PROXY_ADDRESS="" \
     PUID=99 \
     PGID=100
 
