@@ -97,14 +97,23 @@ elif [ ! -f "$SERVER_DESC" ]; then
 fi
 
 # ─── Resolve P2P proxy address ────────────────────────────────────────────────
-# P2pProxyAddress is used as the bind address for the server's internal gRPC
-# listener, not just for advertisement. Under Docker NAT the public IP is never
-# assigned to a local interface, so binding to it fails with WSAEADDRNOTAVAIL
-# and immediately crashes the server. Always use 0.0.0.0 (bind all interfaces)
-# unless the user explicitly provides a specific local IP to bind on.
+# P2pProxyAddress is used as the gRPC server bind address AND registered with
+# the Windrose backend. It must be:
+#   1. An IP actually assigned to a local interface (so gRPC can bind to it)
+#   2. A real non-zero address (so the relay treats the server as reachable)
+# 0.0.0.0 satisfies #1 but not #2 — the backend marks the server offline.
+# The public WAN IP satisfies #2 but not #1 — gRPC bind fails (WSAEADDRNOTAVAIL).
+# The host's primary outbound LAN IP satisfies both when using host networking.
+# The P2PGate relay discovers the actual public IP via STUN independently.
 if [ -z "${P2P_PROXY_ADDRESS}" ] || [ "${P2P_PROXY_ADDRESS}" = "0.0.0.0" ]; then
-    P2P_PROXY_ADDRESS="0.0.0.0"
-    LogInfo "P2P_PROXY_ADDRESS not set — using 0.0.0.0 (bind all interfaces)"
+    detected=$(ip route get 1 2>/dev/null | awk 'NR==1 { for(i=1;i<=NF;i++) if($i=="src") print $(i+1) }')
+    if [ -n "$detected" ] && [ "$detected" != "0.0.0.0" ]; then
+        P2P_PROXY_ADDRESS="$detected"
+        LogSuccess "Auto-detected local IP for P2P proxy: ${P2P_PROXY_ADDRESS}"
+    else
+        P2P_PROXY_ADDRESS="0.0.0.0"
+        LogWarn "Could not detect local IP — falling back to 0.0.0.0 (relay may show server offline)"
+    fi
 else
     LogInfo "Using P2P_PROXY_ADDRESS: ${P2P_PROXY_ADDRESS}"
 fi
