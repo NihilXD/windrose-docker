@@ -56,11 +56,17 @@ elif [ ! -f "$SERVER_DESC" ]; then
     xvfb-run -a wine "$SERVER_EXEC" -log &
     firstrun_pid=$!
 
-    WORLD_DESC="${SERVER_FILES}/R5/WorldDescription.json"
+    # WorldDescription.json lives at a UUID-based path deep under R5/Saved/
+    # so we use `find` rather than a fixed path.
+    WORLDS_SAVE_DIR="${SERVER_FILES}/R5/Saved/SaveProfiles/Default/RocksDB/0.10.0/Worlds"
 
     count=0
-    while [ "$count" -lt 120 ]; do
-        [ -f "$SERVER_DESC" ] && [ -f "$WORLD_DESC" ] && break
+    world_desc=""
+    while [ "$count" -lt 180 ]; do
+        if [ -f "$SERVER_DESC" ]; then
+            world_desc=$(find "$WORLDS_SAVE_DIR" -name "WorldDescription.json" -type f 2>/dev/null | head -1)
+            [ -n "$world_desc" ] && break
+        fi
         sleep 1
         count=$((count + 1))
     done
@@ -74,9 +80,14 @@ elif [ ! -f "$SERVER_DESC" ]; then
         exit 1
     fi
 
-    if [ ! -f "$WORLD_DESC" ]; then
-        LogWarn "WorldDescription.json was not generated after ${count}s — continuing anyway"
+    if [ -z "$world_desc" ]; then
+        LogWarn "WorldDescription.json was not found after ${count}s — continuing anyway"
+    else
+        LogSuccess "WorldDescription.json found: $world_desc"
     fi
+
+    # Give the server a moment to flush writes before we kill it
+    sleep 3
 
     LogSuccess "Config files generated — stopping first-run instance"
     kill "$firstrun_pid" 2>/dev/null
