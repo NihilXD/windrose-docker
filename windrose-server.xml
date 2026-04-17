@@ -10,7 +10,7 @@
   <Project>https://playwindrose.com</Project>
   <Overview>
     Windrose Dedicated Server — keep your world online 24/7 so your crew can sail, build, and plunder without needing a host.&#xD;&#xD;
-    This container is built to actually work: it uses host networking and auto-detects your LAN IP so the P2PGate relay can route players to your server correctly. Other containers default P2P_PROXY_ADDRESS to 127.0.0.1 (loopback), which silently breaks connections for anyone outside your local network.&#xD;&#xD;
+    This container is built to actually work: it uses host networking and auto-detects your LAN IP so the P2PGate relay can route players to your server correctly. No port forwarding required. Other containers default P2P_PROXY_ADDRESS to 127.0.0.1 (loopback), which silently breaks connections for anyone outside your local network, and expose little to no configuration in the Unraid UI — requiring manual JSON editing just to set a server name or password.&#xD;&#xD;
     First launch auto-generates all required config files. Set your invite code, server name, password, and player cap via environment variables — no manual JSON editing needed.&#xD;&#xD;
     Auto-updates server files on every start via SteamCMD so you stay in sync with game patches automatically.
   </Overview>
@@ -28,7 +28,9 @@
     Windrose Dedicated Server — keep your world online 24/7 so your crew can sail, build, and plunder without needing a host.
 
     WHY THIS CONTAINER:
-    Most Windrose Docker containers set P2P_PROXY_ADDRESS to 127.0.0.1 (loopback) by default. This silently breaks P2P connections for anyone outside your local network — players on the same LAN appear to connect, but nobody on the internet can join. This container uses host networking and auto-detects your LAN IP at startup so the Windrose P2PGate relay can route players to your server correctly.
+    Most Windrose Docker containers set P2P_PROXY_ADDRESS to 127.0.0.1 (loopback) by default. This silently breaks P2P connections for anyone outside your local network — players on the same LAN appear to connect, but nobody on the internet can join. This container uses host networking and auto-detects your LAN IP at startup so the Windrose P2PGate relay can route players to your server correctly. No port forwarding required.
+
+    Other containers also expose little to no configuration in the Unraid UI, requiring you to manually edit JSON config files to change basic settings like server name, password, or player cap. Every setting you need is exposed here as an environment variable you can set directly from the Unraid Docker UI.
 
     FEATURES:
     - Auto-detects LAN IP for P2P proxy — works out of the box with no manual network config
