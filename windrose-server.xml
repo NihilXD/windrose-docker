@@ -9,11 +9,10 @@
   <Support>https://github.com/NihilXD/windrose-docker/issues</Support>
   <Project>https://playwindrose.com</Project>
   <Overview>
-    Windrose Dedicated Server — host a persistent world so your crew can sail, build, and plunder anytime without needing the host online.&#xD;&#xD;
-    On first launch the server auto-generates ServerDescription.json and WorldDescription.json inside the server-files volume.&#xD;&#xD;
-    Set INVITE_CODE to a memorable string (1–32 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.&#xD;&#xD;
-    The game client and dedicated server versions must always match — update both together after any game patch.&#xD;&#xD;
-    Up to 4 players is recommended for best performance. See the official setup guide on Steam for advanced world configuration and save migration instructions.
+    Windrose Dedicated Server — keep your world online 24/7 so your crew can sail, build, and plunder without needing a host.&#xD;&#xD;
+    This container is built to actually work: it uses host networking and auto-detects your LAN IP so the P2PGate relay can route players to your server correctly. Other containers default P2P_PROXY_ADDRESS to 127.0.0.1 (loopback), which silently breaks connections for anyone outside your local network.&#xD;&#xD;
+    First launch auto-generates all required config files. Set your invite code, server name, password, and player cap via environment variables — no manual JSON editing needed.&#xD;&#xD;
+    Auto-updates server files on every start via SteamCMD so you stay in sync with game patches automatically.
   </Overview>
   <Category>GameServers:</Category>
   <WebUI/>
@@ -26,15 +25,28 @@
   <DonateText/>
   <DonateLink/>
   <Description>
-    Windrose Dedicated Server — host a persistent world so your crew can sail, build, and plunder anytime without needing the host online.
+    Windrose Dedicated Server — keep your world online 24/7 so your crew can sail, build, and plunder without needing a host.
 
-    On first launch the server auto-generates ServerDescription.json and WorldDescription.json inside the server-files volume.
+    WHY THIS CONTAINER:
+    Most Windrose Docker containers set P2P_PROXY_ADDRESS to 127.0.0.1 (loopback) by default. This silently breaks P2P connections for anyone outside your local network — players on the same LAN appear to connect, but nobody on the internet can join. This container uses host networking and auto-detects your LAN IP at startup so the Windrose P2PGate relay can route players to your server correctly.
 
-    Set INVITE_CODE to a memorable string (1–32 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.
+    FEATURES:
+    - Auto-detects LAN IP for P2P proxy — works out of the box with no manual network config
+    - Auto-updates server files on every start via SteamCMD — stays in sync with game patches automatically
+    - First-launch config generation — ServerDescription.json and WorldDescription.json are created automatically, no manual file editing required
+    - Full env var control — set invite code, server name, password, and max players from the Unraid UI
+    - Password protection — leave SERVER_PASSWORD blank for a public server or set it to require a password
+    - Persistent world saves — all save data lives in the mounted server-files volume
+    - Clean shutdown handling — world state is flushed properly on container stop
 
-    The game client and dedicated server versions must always match — update both together after any game patch.
+    SETUP:
+    1. Set INVITE_CODE to a string your crew will use under Play → Connect to Server in-game (1–32 characters)
+    2. Start the container — first boot takes a few minutes to download server files and generate config
+    3. Share your invite code — no port forwarding required
 
-    Up to 4 players is recommended for best performance. See the official setup guide on Steam for advanced world configuration and save migration instructions.
+    The game client and dedicated server versions must always match. The container auto-updates on start, but if a patch drops mid-session you will need to restart the container and update your game client.
+
+    Up to 4 players is recommended for best performance.
   </Description>
 
   <!-- ═══════════════════════════════════════════ -->
