@@ -11,7 +11,7 @@
   <Overview>
     Windrose Dedicated Server — host a persistent world so your crew can sail, build, and plunder anytime without needing the host online.&#xD;&#xD;
     On first launch the server auto-generates ServerDescription.json and WorldDescription.json inside the server-files volume.&#xD;&#xD;
-    Set INVITE_CODE to a memorable string (min 8 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.&#xD;&#xD;
+    Set INVITE_CODE to a memorable string (1–32 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.&#xD;&#xD;
     The game client and dedicated server versions must always match — update both together after any game patch.&#xD;&#xD;
     Up to 4 players is recommended for best performance. See the official setup guide on Steam for advanced world configuration and save migration instructions.
   </Overview>
@@ -30,7 +30,7 @@
 
     On first launch the server auto-generates ServerDescription.json and WorldDescription.json inside the server-files volume.
 
-    Set INVITE_CODE to a memorable string (min 8 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.
+    Set INVITE_CODE to a memorable string (1–32 chars, case-sensitive) that you and your friends use under Play → Connect to Server in-game.
 
     The game client and dedicated server versions must always match — update both together after any game patch.
 
@@ -61,7 +61,7 @@
     Target="INVITE_CODE"
     Default="windrose"
     Mode=""
-    Description="The code players paste under Play → Connect to Server to find your server. Minimum 8 characters, alphanumeric (0-9, a-z, A-Z), case-sensitive. Share this with your crew."
+    Description="The code players paste under Play → Connect to Server to find your server. 1–32 characters, alphanumeric (0-9, a-z, A-Z), case-sensitive. Share this with your crew."
     Type="Variable"
     Display="always"
     Required="true"
